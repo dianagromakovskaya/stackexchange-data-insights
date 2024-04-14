@@ -1,35 +1,34 @@
 variable "credentials" {
-  description = "My Credentials"
-  default = "./keys/my_creds.json"
+  description = "Your Credentials"
+  default     = "../config/credentials/google_credentials.json"
+}
+
+variable "gcs_bucket" {
+  description = "GCS bucket"
+  default     = "stackexchange-data"
 }
 
 variable "project" {
-  description = "Project"
-  default = "dtc-de-course-412710"
+  description = "Your GCP Project ID"
+  default     = "dtc-de-course-412710"
 }
 
 variable "region" {
   description = "Region"
-  default = "us-central1"
+  default     = "us-central1"
 }
 
 variable "location" {
   description = "Project Location"
-  default = "US"
+  default     = "US"
 }
 
 variable "bq_dataset_name" {
-  description = "My BigQuery Dataset Name"
-  default = "demo_dataset"
+  description = "BigQuery Dataset Name"
+  default     = "stackexchange_data"
 }
-
-variable "gcs_bucket_name" {
-  description = "My Storage Bucket Name"
-  default = "dtc-de-course-412710-terra-bucket"
-}
-
 
 variable "gcs_storage_class" {
   description = "Bucket Storage Class"
-  default = "STANDARD"
+  default     = "STANDARD"
 }
