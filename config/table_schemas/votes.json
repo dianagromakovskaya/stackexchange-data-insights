@@ -1,0 +1,16 @@
+{
+  "schema": {
+    "fields": [
+      {"name": "id", "type": "INTEGER", "mode": "NULLABLE"},
+      {"name": "post_id", "type": "INTEGER", "mode": "NULLABLE"},
+      {"name": "vote_type_id", "type": "INTEGER", "mode": "NULLABLE"},
+      {"name": "creation_date", "type": "TIMESTAMP", "mode": "NULLABLE"},
+      {"name": "user_id", "type": "STRING", "mode": "NULLABLE"},
+      {"name": "bounty_amount", "type": "INTEGER", "mode": "NULLABLE"}
+    ]
+  },
+  "timePartitioning": {
+    "type": "DAY",
+    "field": "creation_date"
+  }
+}
