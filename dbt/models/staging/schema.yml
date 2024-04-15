@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+  - name: staging
+    database: dtc-de-course-412710
+    schema: stackexchange_data
+    tables:
+      - name: ai_posts
+      - name: datascience_posts
+      - name: genai_posts
