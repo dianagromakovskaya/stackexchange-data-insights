@@ -39,7 +39,7 @@ def get_field(row, field_name):
 
 
 def xml_to_csv(file):
-    logging.info('Converting XML to CSV')
+    logging.info(f'Converting {file} to CSV')
     rows = []
     xmlparse = ET.parse(file)
     root = xmlparse.getroot()
@@ -53,6 +53,7 @@ def xml_to_csv(file):
     csv_file = file.replace('xml', 'csv')
     df['id'] = df['id'].fillna(0)
     df.to_csv(csv_file, index=False)
+    logging.info(f'Local CSV: {csv_file}')
     return csv_file
 
 
@@ -72,12 +73,14 @@ def upload_to_gcs(bucket, object_name, local_file):
     bucket = client.bucket(bucket)
     blob = bucket.blob(object_name)
     blob.upload_from_filename(local_file)
+    logging.info(f'GSC file: {object_name}')
 
 
 def get_table_schema(table):
     with open(f'config/table_schemas/{table}.json', 'r') as file:
         table_schema = json.load(file)['schema']
     return table_schema
+
 
 for SERVICE in SERVICES:
     with DAG(
@@ -132,14 +135,16 @@ for SERVICE in SERVICES:
 
                 delete_local_file = BashOperator(
                     task_id='delete_local_file',
-                    bash_command=f'rm -f {AIRFLOW_HOME}/data/{f}.xml {AIRFLOW_HOME}/data/{f}.csv'
+                    bash_command=f'rm -f {AIRFLOW_HOME}/data/{SERVICE}_{f}.xml {AIRFLOW_HOME}/data/{SERVICE}_{f}.csv'
                 )
 
 
                 if prev_group:
                     prev_group >> download_file
-                download_file >> convert_xml_to_csv >> upload_data_to_gcs >> delete_bq_table >> create_bq_table >> gcs_to_bq
+                download_file >> convert_xml_to_csv >> upload_data_to_gcs >> delete_bq_table \
+                >> create_bq_table >> gcs_to_bq >> delete_local_file
                 prev_group = tg
+
 
         delete_local_files = BashOperator(
             task_id='delete_local_files',
