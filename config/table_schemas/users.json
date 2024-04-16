@@ -1,0 +1,22 @@
+{
+  "schema": {
+    "fields": [
+      {"name": "id", "type": "INTEGER", "mode": "NULLABLE"},
+      {"name": "reputation", "type": "INTEGER", "mode": "NULLABLE"},
+      {"name": "creation_date", "type": "TIMESTAMP", "mode": "NULLABLE"},
+      {"name": "display_name", "type": "STRING", "mode": "NULLABLE"},
+      {"name": "last_access_date", "type": "TIMESTAMP", "mode": "NULLABLE"},
+      {"name": "website_url", "type": "STRING", "mode": "NULLABLE"},
+      {"name": "location", "type": "STRING", "mode": "NULLABLE"},
+      {"name": "about_me", "type": "STRING", "mode": "NULLABLE"},
+      {"name": "views", "type": "INTEGER", "mode": "NULLABLE"},
+      {"name": "up_votes", "type": "INTEGER", "mode": "NULLABLE"},
+      {"name": "down_votes", "type": "INTEGER", "mode": "NULLABLE"},
+      {"name": "account_id", "type": "INTEGER", "mode": "NULLABLE"}
+    ]
+  },
+  "timePartitioning": {
+    "type": "DAY",
+    "field": "creation_date"
+  }
+}

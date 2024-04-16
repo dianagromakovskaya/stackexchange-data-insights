@@ -1,0 +1,11 @@
+{
+  "schema": {
+    "fields": [
+      {"name": "id", "type": "INTEGER", "mode": "REQUIRED"},
+      {"name": "tag_name", "type": "STRING", "mode": "NULLABLE"},
+      {"name": "count", "type": "INTEGER", "mode": "NULLABLE"},
+      {"name": "excerpt_post_id", "type": "INTEGER", "mode": "NULLABLE"},
+      {"name": "wiki_post_id", "type": "INTEGER", "mode": "NULLABLE"}
+    ]
+  }
+}

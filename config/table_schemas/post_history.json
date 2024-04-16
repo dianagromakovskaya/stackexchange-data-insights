@@ -1,0 +1,20 @@
+{
+  "schema": {
+    "fields": [
+      {"name": "id", "type": "INTEGER", "mode": "NULLABLE"},
+      {"name": "post_history_type_id", "type": "INTEGER", "mode": "NULLABLE"},
+      {"name": "post_id", "type": "INTEGER", "mode": "NULLABLE"},
+      {"name": "revision_guid", "type": "STRING", "mode": "NULLABLE"},
+      {"name": "creation_date", "type": "TIMESTAMP", "mode": "NULLABLE"},
+      {"name": "user_id", "type": "INTEGER", "mode": "NULLABLE"},
+      {"name": "text", "type": "STRING", "mode": "NULLABLE"},
+      {"name": "content_license", "type": "STRING", "mode": "NULLABLE"},
+      {"name": "comment", "type": "STRING", "mode": "NULLABLE"},
+      {"name": "user_display_name", "type": "STRING", "mode": "NULLABLE"}
+    ]
+  },
+  "timePartitioning": {
+    "type": "DAY",
+    "field": "creation_date"
+  }
+}

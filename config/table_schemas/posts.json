@@ -1,0 +1,32 @@
+{
+  "schema": {
+    "fields": [
+      {"name": "id", "type": "INTEGER", "mode": "NULLABLE"},
+      {"name": "post_type_id", "type": "INTEGER", "mode": "NULLABLE"},
+      {"name": "creation_date", "type": "TIMESTAMP", "mode": "NULLABLE"},
+      {"name": "score", "type": "INTEGER", "mode": "NULLABLE"},
+      {"name": "view_count", "type": "INTEGER", "mode": "NULLABLE"},
+      {"name": "body", "type": "STRING", "mode": "NULLABLE"},
+      {"name": "owner_user_id", "type": "INTEGER", "mode": "NULLABLE"},
+      {"name": "last_activity_date", "type": "TIMESTAMP", "mode": "NULLABLE"},
+      {"name": "title", "type": "STRING", "mode": "NULLABLE"},
+      {"name": "tags", "type": "STRING", "mode": "NULLABLE"},
+      {"name": "answer_count", "type": "INTEGER", "mode": "NULLABLE"},
+      {"name": "comment_count", "type": "INTEGER", "mode": "NULLABLE"},
+      {"name": "closed_date", "type": "TIMESTAMP", "mode": "NULLABLE"},
+      {"name": "content_license", "type": "STRING", "mode": "NULLABLE"},
+      {"name": "accepted_answer_id", "type": "INTEGER", "mode": "NULLABLE"},
+      {"name": "last_editor_user_id", "type": "INTEGER", "mode": "NULLABLE"},
+      {"name": "last_edit_date", "type": "TIMESTAMP", "mode": "NULLABLE"},
+      {"name": "parent_id", "type": "INTEGER", "mode": "NULLABLE"},
+      {"name": "owner_display_name", "type": "STRING", "mode": "NULLABLE"},
+      {"name": "community_owned_date", "type": "TIMESTAMP", "mode": "NULLABLE"},
+      {"name": "last_editor_display_name", "type": "STRING", "mode": "NULLABLE"},
+      {"name": "favorite_count", "type": "INTEGER", "mode": "NULLABLE"}
+    ]
+  },
+  "timePartitioning": {
+    "type": "DAY",
+    "field": "creation_date"
+  }
+}
