@@ -73,17 +73,21 @@ Before you begin, ensure you have met the following requirements:
 
 ### Installation
 
-You can follow these steps in order to reproduce this project on your machine.
+Here are the detailed instructions on how to reproduce this project on your machine.
 
 #### GCP Project and Credentials
 
+#### Setup infrastructure with Terraform
+
 #### Ingest data to BigQuery with Airflow
 
-#### Build
+#### Perform data tranformations with DBT
 
 ### Usage
 
 ## Dashboard
+
+![image1](./docs/dashboard1.png)
 
 ## TODO
 
