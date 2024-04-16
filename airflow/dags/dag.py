@@ -1,4 +1,4 @@
-import datetime
+import json
 import json
 import logging
 import os
@@ -15,7 +15,6 @@ from airflow.providers.google.cloud.operators.bigquery import BigQueryCreateEmpt
 from airflow.providers.google.cloud.transfers.gcs_to_bigquery import GCSToBigQueryOperator
 from airflow.utils.task_group import TaskGroup
 from google.cloud import storage
-
 
 with open('config/config.yaml', 'r') as cfg:
     CONFIG = yaml.safe_load(cfg)
@@ -54,9 +53,6 @@ def xml_to_csv(file):
     csv_file = file.replace('xml', 'csv')
     df['id'] = df['id'].fillna(0)
     df.to_csv(csv_file, index=False)
-    logging.info(os.listdir('data'))
-    logging.info(os.listdir('.google'))
-    logging.info(os.listdir('.google/credentials'))
     return csv_file
 
 
@@ -86,7 +82,6 @@ def get_table_schema(table):
 for SERVICE in SERVICES:
     with DAG(
         dag_id=f'upload_{SERVICE}_stackexchange_data_to_gcs',
-        # start_date=datetime.datetime.strptime(START_DATE, "%Y-%m-%d"),
         start_date=START_DATE,
         tags=['stackexchange-data-insights'],
         schedule_interval='@daily'
@@ -134,6 +129,12 @@ for SERVICE in SERVICES:
                     allow_quoted_newlines=True,
                     max_bad_records=10
                 )
+
+                delete_local_file = BashOperator(
+                    task_id='delete_local_file',
+                    bash_command=f'rm -f {AIRFLOW_HOME}/data/{f}.xml {AIRFLOW_HOME}/data/{f}.csv'
+                )
+
 
                 if prev_group:
                     prev_group >> download_file

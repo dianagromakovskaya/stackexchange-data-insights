@@ -2,7 +2,6 @@ gcp:
   project_id: dtc-de-course-412710
   bucket: stackexchange-data
   dataset: stackexchange_data
-  credentials_path: google_credentials.json
 
 services:
   - datascience
