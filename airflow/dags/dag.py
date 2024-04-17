@@ -1,5 +1,4 @@
 import json
-import json
 import logging
 import os
 import re
@@ -87,7 +86,7 @@ for SERVICE in SERVICES:
         dag_id=f'upload_{SERVICE}_stackexchange_data_to_gcs',
         start_date=START_DATE,
         tags=['stackexchange-data-insights'],
-        schedule_interval='@daily'
+        schedule_interval='@once'
     ) as dag:
         files = ['badges', 'comments', 'post_history', 'post_links', 'posts', 'tags', 'users', 'votes']
         prev_group = None
@@ -144,11 +143,3 @@ for SERVICE in SERVICES:
                 download_file >> convert_xml_to_csv >> upload_data_to_gcs >> delete_bq_table \
                 >> create_bq_table >> gcs_to_bq >> delete_local_file
                 prev_group = tg
-
-
-        delete_local_files = BashOperator(
-            task_id='delete_local_files',
-            bash_command=f"rm -f {AIRFLOW_HOME}/data/*",
-            dag=dag
-        )
-        prev_group >> delete_local_files

@@ -74,7 +74,7 @@ Before you begin, ensure you have met the following requirements:
 * Google Cloud SDK ([installation](https://cloud.google.com/sdk/docs/install-sdk))
 * GCP Project ([Initial Setup](https://github.com/dianagromakovskaya/data-engineering-zoomcamp/blob/main/01-docker-terraform/1_terraform_gcp/2_gcp_overview.md#initial-setup))
 * GCP Service Account with Storage Admin, BigQuery Admin and Compute Admin roles ([Setup for Access](https://github.com/dianagromakovskaya/data-engineering-zoomcamp/blob/main/01-docker-terraform/1_terraform_gcp/2_gcp_overview.md#setup-for-access))
-* Docker and Docker Compose ([installation](https://docs.docker.com/compose/install/))
+* Docker Desktop and Docker Compose v2.14.0 or newer ([installation](https://docs.docker.com/compose/install/))
 * Terraform ([installation](https://www.terraform.io/downloads))
 
 ### Project Installation and Setup
@@ -117,7 +117,7 @@ Put your GCP project id instead of {GCP_PROJECT_ID}. If you specified your own b
 terraform plan -var 'project={GCP_PROJECT_ID}'
 ```
 
-After execution of this command, you should see something like that:
+After execution of this command, you should see a message like this:
 ```bash
 Terraform will perform the following actions:
 
@@ -136,7 +136,7 @@ Put your GCP project id instead of {GCP_PROJECT_ID}. If you specified your own b
 terraform apply -var 'project={GCP_PROJECT_ID}'
 ```
 
-After execution of this command, you should see:
+After execution of this command, you should see a message like this:
 
 ```bash
 Apply complete! Resources: 2 added, 0 changed, 0 destroyed.
@@ -144,15 +144,98 @@ Apply complete! Resources: 2 added, 0 changed, 0 destroyed.
 
 * Ensure that GCP resources have been created
 
-#### 4. Ingest data to BigQuery with Airflow
+    * Navigate to [Google Cloud Storage](https://console.cloud.google.com/storage/browser]). Here you should see a new empty bucket with the name `{GCP_PROJECT_ID}_stackexchange-data` (it can be different if you've customized the bucket name in [config/config.yaml](config/config.yaml))
+    * Navigate to [Google Cloud Console](https://console.cloud.google.com/bigquery). Under your project, you should see a new empty dataset with the name `stackexchange_data` (it can be different if you've customized the dataset name in [config/config.yaml](config/config.yaml))
+    
+* If you want to delete the resources created in the previous steps, you can use the following command:
 
 ```bash
+terraform destroy
+```
+
+#### 4. Ingest data to BigQuery with Airflow
+
+* **Initializing Environment**
+
+Navigate to the [airflow](airflow) directory:
+```bash
 cd airflow
-docker compose build
+```
+
+After that, perform the following steps:
+
+1. [Setting the right Airflow user](https://airflow.apache.org/docs/apache-airflow/stable/howto/docker-compose/index.html#setting-the-right-airflow-user)
+2. [Initialize the database](https://airflow.apache.org/docs/apache-airflow/stable/howto/docker-compose/index.html#setting-the-right-airflow-user)
+
+
+* **Running Airflow**
+
+Now you can start all services:
+
+```bash
 docker compose up -d
 ```
 
-Navigate to 
+After execution of this command, you should see a message like this:
+
+```bash
+[+] Running 9/9
+ ✔ Network airflow_default                Created                                                                                                                                                                                 0.2s 
+ ✔ Volume "airflow_postgres-db-volume"    Created                                                                                                                                                                                 0.0s 
+ ✔ Container airflow-redis-1              Healthy                                                                                                                                                                                 0.4s 
+ ✔ Container airflow-postgres-1           Healthy                                                                                                                                                                                 0.4s 
+ ✔ Container airflow-airflow-init-1       Exited                                                                                                                                                                                  0.2s 
+ ✔ Container airflow-airflow-scheduler-1  Started                                                                                                                                                                                 0.3s 
+ ✔ Container airflow-airflow-triggerer-1  Started                                                                                                                                                                                 0.3s 
+ ✔ Container airflow-airflow-worker-1     Started                                                                                                                                                                                 0.3s 
+ ✔ Container airflow-airflow-webserver-1  Started 
+```
+
+* **Access the Airflow Web UI**
+
+Open http://localhost:8080/ in your webrowser and enter login and password (Username: airflow, Password: airflow). You should see three DAGs on the home page:
+
+![airflow1](./docs/airflow1.png)
+
+Each of these DAGs is designed to download, process, and upload Stack Exchange data from the respective site to Google Cloud Storage (GCS) and BigQuery.
+
+* **Launch the DAGs**
+
+Toggle all switches, which are located near the DAG names, to the "On" state.
+
+Here is a breakdown of steps, involved in each DAG (see [DAG source code](airflow/dags/dag.py)):
+
+* **Download XML files**: The DAG starts by downloading XML files from the respective Stack Exchange website for various data categories (e.g., badges, comments, posts) using the BashOperator.
+
+* **Convert XML to CSV**: Once downloaded, the XML files are converted to CSV format using a custom Python function (xml_to_csv), executed by the PythonOperator.
+
+* **Upload CSV to GCS**: After conversion, the CSV files are uploaded to Google Cloud Storage (GCS) using another Python function (upload_to_gcs), executed by the PythonOperator.
+
+* **Delete existing BigQuery tables**: Before uploading to BigQuery, any existing tables with the same names are deleted using the BigQueryDeleteTableOperator.
+
+* **Create empty BigQuery tables**: Empty tables are created in BigQuery with the appropriate schema for each data category using the BigQueryCreateEmptyTableOperator. Table schemas are stored in the [config/table_schemas](config/table_schemas). Each table is partitioned by day to make queries more effective.
+
+* **Load data from GCS to BigQuery**: The CSV files stored in GCS are then loaded into the corresponding BigQuery tables using the GCSToBigQueryOperator.
+
+* **Delete local file**s: Once the data is successfully uploaded to GCS and BigQuery, the local XML and CSV files are deleted using the BashOperator.
+
+This DAG is structured to handle each data category sequentially, ensuring dependencies are met before proceeding to the next step. Additionally, it provides cleanup steps to maintain a tidy workspace and avoid cluttering the filesystem with unnecessary files.
+
+* **Wait fot the DAGs to finish executing**
+
+After all the DAGs finish to run, they should look like this:
+
+![airflow2](./docs/airflow2.png)
+
+* **Verify that all the data is presented in BigQuery**
+
+Navigate to Navigate to [Google Cloud Console](https://console.cloud.google.com/bigquery). Under the dataset, which has been created in the third step, you should see 24 new tables named like {service}_{table}. On the screenshot below you can see the tables which have been created for the service = ai:
+
+![bq1](./docs/bq1.png)
+
+* **Shut down the containers and remove them**
+
+After the data is successfully ingested to BigQuery, don't forget to stop and remove all containers:
 
 ```bash
 docker compose down --volumes --remove-orphans
@@ -165,7 +248,7 @@ docker compose down --volumes --remove-orphans
 
 ## Dashboard
 
-![image1](./docs/dashboard1.png)
+![dashboard1](./docs/dashboard1.png)
 
 ## TODO
 
