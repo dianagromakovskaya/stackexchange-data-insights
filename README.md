@@ -5,13 +5,12 @@ This project enables you to download, process, and analyze data from the [Stack 
 ## Table of Contents
 
 - [Introduction](#introduction)
-- [Dataset](#dataset)
 - [Folder Structure](#folder-structure)
+- [Dataset](#dataset)
 - [Technologies](#technologies)
 - [Getting Started](#getting-started)
     - [Prerequisites](#prerequisites)
-    - [Installation](#installation)
-- [Usage](#usage)
+    - [Project Installation and Setup](#project-installation-and-setup)
 - [Dashboard](#dashboard)
 - [TODO](#TODO)
 - [Contact](#contact)
@@ -22,7 +21,11 @@ The Stack Exchange Data Insights project is designed to facilitate the extractio
 
 Understanding trends and patterns within Stack Exchange data can provide valuable insights into 150+ various topics, including technologies, finances, languages and many others. For me it was especially interesting to explore trends in the the fastest-emerging areas in the tech industry, such as AI and Data Science, where revolutionary technologies like Language Models (LLMs) have completely transformed our world recently. That's why in this project I analyzed questions and answers from [https://ai.stackexchange.com/](https://ai.stackexchange.com/) and [https://datascience.stackexchange.com/](https://datascience.stackexchange.com/) in order to explore trending topics and discussions in these fields and analyse how they changed over the years.
 
-Here are ... TODO: Provide examples 
+Here are some questions I explored during this project:
+
+* What are the most populars question topics for the specific period of time?
+* How the popularity of a specific question tag has changed over the time?
+* Which questions have many views, but still aren't answered?
 
 With slightly modifications this project can be utilized to analyse the data from any other Stack Exchange site(s).
 
@@ -30,12 +33,12 @@ With slightly modifications this project can be utilized to analyse the data fro
 
 ```
 .
-├── airflow/        # 
+├── airflow/        # Airflow DAGs and related files
 ├── config/         # Configuration files
 ├── data/           # Data files
-├── dbt/            # 
-├── docs/           # 
-├── terraform       # 
+├── dbt/            # dbt models and related files
+├── docs/           # Documentation files
+├── terraform       # Terraform configuration files
 ├── .gitignore      # Git ignore rules
 ├── README.md       # This file
 ```
@@ -54,15 +57,17 @@ For this project, I used data from the following Stack Exchange sites:
 
 ## Technologies
 
-### TODO: Add description and pipleine picture
+Here is the technology stack I used for this project:
 
-* **Terraform** - IaC tool
-* **Google Cloud Storage** - Data Lake
-* **Google BigQuery** - Data Warehouse
-* **Airflow** - Data Orchestration tool
-* **Docker** - Containerization tool
-* **DBT Cloud** - Data Transformations and Modeling
-* **Looker Studio** - Data Visualisation
+* **Terraform**: IaC tool
+* **Google Cloud Storage**: Data Lake
+* **Google BigQuery**: Data Warehouse
+* **Airflow**: Data Orchestration tool
+* **Docker**: Containerization tool
+* **dbt Cloud**: Data Transformations and Modeling
+* **Looker Studio**: Data Visualisation
+
+TODO: Add pipeline picture
 
 ## Getting Started
 
@@ -76,6 +81,7 @@ Before you begin, ensure you have met the following requirements:
 * GCP Service Account with Storage Admin, BigQuery Admin and Compute Admin roles ([Setup for Access](https://github.com/dianagromakovskaya/data-engineering-zoomcamp/blob/main/01-docker-terraform/1_terraform_gcp/2_gcp_overview.md#setup-for-access))
 * Docker Desktop and Docker Compose v2.14.0 or newer ([installation](https://docs.docker.com/compose/install/))
 * Terraform ([installation](https://www.terraform.io/downloads))
+* dbt Cloud account ([sign up](https://www.getdbt.com/signup)), connected to your GitHub account ([instructions](https://docs.getdbt.com/docs/cloud/git/connect-github))
 
 ### Project Installation and Setup
 
@@ -145,7 +151,7 @@ Apply complete! Resources: 2 added, 0 changed, 0 destroyed.
 * Ensure that GCP resources have been created
 
     * Navigate to [Google Cloud Storage](https://console.cloud.google.com/storage/browser]). Here you should see a new empty bucket with the name `{GCP_PROJECT_ID}_stackexchange-data` (it can be different if you've customized the bucket name in [config/config.yaml](config/config.yaml))
-    * Navigate to [Google Cloud Console](https://console.cloud.google.com/bigquery). Under your project, you should see a new empty dataset with the name `stackexchange_data` (it can be different if you've customized the dataset name in [config/config.yaml](config/config.yaml))
+    * Navigate to [Google Cloud BigQuery Console](https://console.cloud.google.com/bigquery). Under your project, you should see a new empty dataset with the name `stackexchange_data` (it can be different if you've customized the dataset name in [config/config.yaml](config/config.yaml))
     
 * If you want to delete the resources created in the previous steps, you can use the following command:
 
@@ -229,7 +235,7 @@ After all the DAGs finish to run, they should look like this:
 
 * **Verify that all the data is presented in BigQuery**
 
-Navigate to Navigate to [Google Cloud Console](https://console.cloud.google.com/bigquery). Under the dataset, which has been created in the third step, you should see 24 new tables named like {service}_{table}. On the screenshot below you can see the tables which have been created for the service = ai:
+Navigate to Navigate to [Google Cloud BigQuery Console](https://console.cloud.google.com/bigquery). Under the dataset, which has been created in the third step, you should see 24 new tables named like {service}_{table}. On the screenshot below you can see the tables which have been created for the service = ai:
 
 ![bq1](./docs/bq1.png)
 
@@ -241,7 +247,38 @@ After the data is successfully ingested to BigQuery, don't forget to stop and re
 docker compose down --volumes --remove-orphans
 ```
 
-#### 5. Perform data tranformations with dbt Cloud
+#### 5. Perform data transformations with dbt Cloud
+
+* **Create a new dbt Cloud project**
+
+    With a free account, you can have only one dbt Cloud project, so at first you should delete any old projects you have on the **Account Settings > Projects** page. Then you need to create a new project with the following settings:
+    
+    1. **Project name**: stackexchange_data_insights 
+    2. **Repository**: git://github.com/{account}/stackexchange-data-insights.git
+
+        Fork the [initial repository](https://github.com/dianagromakovskaya/stackexchange-data-insights) and add it to the list of GitHub repositories, which dbt Cloud has access to via **Personal profile > Linked accounts > Configure integration in GitHub**.
+
+    3. **Connection**: BigQuery
+        * For the warehouse, click BigQuery then Next to set up your connection. 
+        * Click Upload a Service Account JSON File in settings and select the same file which you put to [config/credentials/google_credentials.json](config/credentials/google_credentials.json).
+        * Click Test Connection. This verifies that dbt Cloud can access your BigQuery account.
+
+    4. **Project subdirectory**: dbt
+
+* **Build dbt project**
+
+    1. Navigate to **Develop > Cloud IDE**.
+    2. Open [dbt/models/staging/schema.yml](dbt/models/staging/schema.yml) file, put your GCP_PROJECT_ID to the database field and save changes. You should see the following schema on the **Lineage** tab in the bottom:
+        ![dbt1](./docs/dbt1.png)
+    3. To build the project run:
+    ```bash
+    dbt build --vars '{'is_test_run': 'false'}'
+    ```
+    ![dbt2](./docs/dbt2.png)
+
+* **Ensure that all transformations have been successfully applied**
+
+    Navigate to [Google Cloud BigQuery Console](https://console.cloud.google.com/bigquery). Under your dataset, you should see three new materialized views named `stg_ai_posts`, `stg_datascience_posts` and `stg_genai_posts` and two new tables - `fact_questions` and `monthly_tag_views`.
 
 #### 6. Visualise data with Looker Studio
 
@@ -259,6 +296,6 @@ docker compose down --volumes --remove-orphans
 
 ## Contact
 
-If you have any questions or suggestions, feel free to connect with me on [Linkedin](https://www.linkedin.com/in/diana-gromakovskaya-49931b188/).
+If you have any questions or suggestions, feel free to connect with me on [Linkedin](https://www.linkedin.com/in/diana-gromakovskaya-49931b188/) or DataTalks Slack (Diana Gromakovskaia).
 
 
