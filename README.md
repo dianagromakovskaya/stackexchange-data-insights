@@ -67,8 +67,6 @@ Here is the technology stack I used for this project:
 * **dbt Cloud**: Data Transformations and Modeling
 * **Looker Studio**: Data Visualisation
 
-TODO: Add pipeline picture
-
 ## Getting Started
 
 ### Prerequisites
@@ -282,19 +280,18 @@ docker compose down --volumes --remove-orphans
 
     Navigate to [Google Cloud BigQuery Console](https://console.cloud.google.com/bigquery). Under your dataset, you should see three new materialized views named `stg_ai_posts`, `stg_datascience_posts` and `stg_genai_posts` and two new tables - `fact_questions` and `monthly_tag_views`.
 
-#### 6. Visualise data with Looker Studio
-
-
-TODO: add instructions
+#### 6. Visualize data with Looker Studio
 
 
 ## Dashboard
 
-[Dashboard Link](https://lookerstudio.google.com/reporting/3810ed29-d5f0-412b-927e-8030b52edbaf)
+[Here](https://lookerstudio.google.com/reporting/3810ed29-d5f0-412b-927e-8030b52edbaf) you can find the dashboard which I've created in Looker Studio. 
 
-TODO: add description
+The first report shows the most popular tags over the years. You can select service in the **service** drop-down list to see the most popular tags for specific service. Also you can specify a date range or a year to see the most popular topics for the specific period of time. I also added word clouds, which illustrate popularity of different tags. For these word clouds, I used **Vega / Vega-Lite** Community Visualization.
 
 ![dashboard1](./docs/dashboard1.png)
+
+The second report shows how the number of questions and answered questions have changed over the years. You can select service/tag in the respective drop-down list to see the same charts for a particular service or tag. I also added the table which shows top 10 most viewed questions, which haven't been answered yet. You can specify a date range to see the results for the specific period of time.
 ![dashboard2](./docs/dashboard2.png)
 
 ## TODO
