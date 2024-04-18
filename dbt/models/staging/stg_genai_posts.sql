@@ -8,7 +8,7 @@ with
 
 source as (
 
-    select * from {{ source('staging', 'datascience_posts') }}
+    select * from {{ source('staging', 'genai_posts') }}
 
 ),
 
@@ -35,7 +35,7 @@ renamed as (
         content_license,
         parent_id,
         closed_date,
-        favorite_count,
+        0 favourite_count,
         community_owned_date,
         last_editor_display_name,
         owner_display_name
