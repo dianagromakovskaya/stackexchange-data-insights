@@ -1,4 +1,3 @@
-import datetime
 import json
 import logging
 import os
@@ -15,7 +14,6 @@ from airflow.providers.google.cloud.operators.bigquery import BigQueryCreateEmpt
 from airflow.providers.google.cloud.transfers.gcs_to_bigquery import GCSToBigQueryOperator
 from airflow.utils.task_group import TaskGroup
 from google.cloud import storage
-
 
 with open('config/config.yaml', 'r') as cfg:
     CONFIG = yaml.safe_load(cfg)
@@ -40,7 +38,7 @@ def get_field(row, field_name):
 
 
 def xml_to_csv(file):
-    logging.info('Converting XML to CSV')
+    logging.info(f'Converting {file} to CSV')
     rows = []
     xmlparse = ET.parse(file)
     root = xmlparse.getroot()
@@ -54,9 +52,7 @@ def xml_to_csv(file):
     csv_file = file.replace('xml', 'csv')
     df['id'] = df['id'].fillna(0)
     df.to_csv(csv_file, index=False)
-    logging.info(os.listdir('data'))
-    logging.info(os.listdir('.google'))
-    logging.info(os.listdir('.google/credentials'))
+    logging.info(f'Local CSV: {csv_file}')
     return csv_file
 
 
@@ -76,6 +72,7 @@ def upload_to_gcs(bucket, object_name, local_file):
     bucket = client.bucket(bucket)
     blob = bucket.blob(object_name)
     blob.upload_from_filename(local_file)
+    logging.info(f'GSC file: {object_name}')
 
 
 def get_table_schema(table):
@@ -83,13 +80,13 @@ def get_table_schema(table):
         table_schema = json.load(file)['schema']
     return table_schema
 
+
 for SERVICE in SERVICES:
     with DAG(
         dag_id=f'upload_{SERVICE}_stackexchange_data_to_gcs',
-        # start_date=datetime.datetime.strptime(START_DATE, "%Y-%m-%d"),
         start_date=START_DATE,
         tags=['stackexchange-data-insights'],
-        schedule_interval='@daily'
+        schedule_interval='@once'
     ) as dag:
         files = ['badges', 'comments', 'post_history', 'post_links', 'posts', 'tags', 'users', 'votes']
         prev_group = None
@@ -135,14 +132,14 @@ for SERVICE in SERVICES:
                     max_bad_records=10
                 )
 
+                delete_local_file = BashOperator(
+                    task_id='delete_local_file',
+                    bash_command=f'rm -f {AIRFLOW_HOME}/data/{SERVICE}_{f}.xml {AIRFLOW_HOME}/data/{SERVICE}_{f}.csv'
+                )
+
+
                 if prev_group:
                     prev_group >> download_file
-                download_file >> convert_xml_to_csv >> upload_data_to_gcs >> delete_bq_table >> create_bq_table >> gcs_to_bq
+                download_file >> convert_xml_to_csv >> upload_data_to_gcs >> delete_bq_table \
+                >> create_bq_table >> gcs_to_bq >> delete_local_file
                 prev_group = tg
-
-        delete_local_files = BashOperator(
-            task_id='delete_local_files',
-            bash_command=f"rm -f {AIRFLOW_HOME}/data/*",
-            dag=dag
-        )
-        prev_group >> delete_local_files

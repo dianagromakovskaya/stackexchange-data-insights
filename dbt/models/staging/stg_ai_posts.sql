@@ -19,6 +19,7 @@ renamed as (
         post_type_id,
         {{ get_post_type_description(post_type_id) }} post_type,
         accepted_answer_id,
+        case when accepted_answer_id is not null then true else false end is_answered,
         creation_date,
         score,
         view_count,
@@ -44,7 +45,6 @@ renamed as (
 )
 
 select * from renamed
-where  {{ dbt.date_trunc("month", "creation_date") }} >= '2023-08-01'
 
 -- dbt build --select <model_name> --vars '{'is_test_run': 'false'}'
 {% if var('is_test_run', default=true) %}
