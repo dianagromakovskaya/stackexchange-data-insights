@@ -102,20 +102,20 @@ You can also change the bucket/dataset name to something else instead of default
 
 #### 3. Setup infrastructure with Terraform
 
-* Check that Terraform is installed
+* **Check that Terraform is installed**
 
 ```bash
 terraform version
 ```
 
-* Initialize the project
+* **Initialize the project**
 
 ```bash
 cd terraform
 terraform init
 ```
 
-* Check Execution Plan
+* **Check Execution Plan**
 
 Put your GCP project id instead of {GCP_PROJECT_ID}. If you specified your own bucket and dataset names in [config/config.yaml](config/config.yaml), remember to specify them using the `gcs_bucket` and `bq_dataset_name` variables.
 
@@ -135,7 +135,7 @@ Plan: 2 to add, 0 to change, 0 to destroy.
 
 ```
 
-* Apply changes from the propose Execution Plan to cloud
+* **Apply changes from the proposed Execution Plan to cloud**
 
 Put your GCP project id instead of {GCP_PROJECT_ID}. If you specified your own bucket and dataset names in [config/config.yaml](config/config.yaml), remember to specify them using the `gcs_bucket` and `bq_dataset_name` variables.
 ```bash
@@ -148,12 +148,14 @@ After execution of this command, you should see a message like this:
 Apply complete! Resources: 2 added, 0 changed, 0 destroyed.
 ```
 
-* Ensure that GCP resources have been created
+* **Ensure that GCP resources have been created**
 
     * Navigate to [Google Cloud Storage](https://console.cloud.google.com/storage/browser]). Here you should see a new empty bucket with the name `{GCP_PROJECT_ID}_stackexchange-data` (it can be different if you've customized the bucket name in [config/config.yaml](config/config.yaml))
     * Navigate to [Google Cloud BigQuery Console](https://console.cloud.google.com/bigquery). Under your project, you should see a new empty dataset with the name `stackexchange_data` (it can be different if you've customized the dataset name in [config/config.yaml](config/config.yaml))
     
-* If you want to delete the resources created in the previous steps, you can use the following command:
+* **Destroy created objects after your work, to avoid costs on any running services**
+
+If you want to delete the resources created in the previous steps, you can use the following command:
 
 ```bash
 terraform destroy
@@ -283,9 +285,17 @@ docker compose down --volumes --remove-orphans
 #### 6. Visualise data with Looker Studio
 
 
+TODO: add instructions
+
+
 ## Dashboard
 
+[Dashboard Link](https://lookerstudio.google.com/reporting/3810ed29-d5f0-412b-927e-8030b52edbaf)
+
+TODO: add description
+
 ![dashboard1](./docs/dashboard1.png)
+![dashboard2](./docs/dashboard2.png)
 
 ## TODO
 
