@@ -148,7 +148,7 @@ Apply complete! Resources: 2 added, 0 changed, 0 destroyed.
 
 * **Ensure that GCP resources have been created**
 
-    * Navigate to [Google Cloud Storage](https://console.cloud.google.com/storage/browser]). Here you should see a new empty bucket with the name `{GCP_PROJECT_ID}_stackexchange-data` (it can be different if you've customized the bucket name in [config/config.yaml](config/config.yaml))
+    * Navigate to [Google Cloud Storage](https://console.cloud.google.com/storage/browser). Here you should see a new empty bucket with the name `{GCP_PROJECT_ID}_stackexchange-data` (it can be different if you've customized the bucket name in [config/config.yaml](config/config.yaml))
     * Navigate to [Google Cloud BigQuery Console](https://console.cloud.google.com/bigquery). Under your project, you should see a new empty dataset with the name `stackexchange_data` (it can be different if you've customized the dataset name in [config/config.yaml](config/config.yaml))
     
 * **Destroy created objects after your work, to avoid costs on any running services**
